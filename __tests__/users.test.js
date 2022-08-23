@@ -2,7 +2,7 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
-// const UserService = require('../lib/services/UserServices');
+const UserService = require('../lib/services/UserServices');
 
 const mockUser = {
   firstName: 'Test',
@@ -11,21 +11,21 @@ const mockUser = {
   password: '123456',
 };
 
-// const registerAndLogin = async (userProps = {}) => {
-//   const password = userProps.password ?? mockUser.password;
+const registerAndLogin = async (userProps = {}) => {
+  const password = userProps.password ?? mockUser.password;
 
-//   // Create an "agent" that gives us the ability
-//   // to store cookies between requests in a test
-//   const agent = request.agent(app);
+  // Create an "agent" that gives us the ability
+  // to store cookies between requests in a test
+  const agent = request.agent(app);
 
-//   // Create a user to sign in with
-//   const user = await UserService.create({ ...mockUser, ...userProps });
+  // Create a user to sign in with
+  const user = await UserService.create({ ...mockUser, ...userProps });
 
-//   // ...then sign in
-//   const { email } = user;
-//   await agent.post('/api/v1/users/sessions').send({ email, password });
-//   return [agent, user];
-// };
+  // ...then sign in
+  const { email } = user;
+  await agent.post('/api/v1/users/sessions').send({ email, password });
+  return [agent, user];
+};
 
 describe('backend-express-template routes', () => {
   beforeEach(() => {
@@ -60,4 +60,14 @@ describe('backend-express-template routes', () => {
     });
   });
 
+  it('#GET /me route returns the current user', async () => {
+    const [agent, user] = await registerAndLogin();
+    const res = await agent.get('/api/v1/users/me');
+
+    expect(res.body).toEqual({
+      ...user,
+      exp: expect.any(Number),
+      iat: expect.any(Number)
+    });
+  });
 });
