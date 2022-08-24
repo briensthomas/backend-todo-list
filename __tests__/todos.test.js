@@ -57,5 +57,15 @@ describe('backend-express-template routes', () => {
     });
   });
 
+  it('#PUT /todos/:id updates a task for the user', async () => {
+    const updatedTask = {
+      status: true
+    };
+    await agent.post('/api/v1/users').send(mockUser);
+    const res = await agent.put('/api/v1/todos').send(updatedTask);
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe(true);
+  });
 
 });
