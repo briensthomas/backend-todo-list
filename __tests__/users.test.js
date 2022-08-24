@@ -23,7 +23,7 @@ describe('backend-express-template routes', () => {
     const res = await request.agent(app).post('/api/v1/users').send(mockUser);
     const { firstName, lastName, email } = mockUser;
 
-    console.log('res.body', res.body);
+    // console.log('res.body', res.body);
     expect(res.body).toEqual({
       id: expect.any(String),
       firstName,
