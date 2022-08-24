@@ -2,7 +2,6 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
-const UserService = require('../lib/services/UserServices');
 
 const mockUser = {
   firstName: 'Test',
@@ -10,22 +9,7 @@ const mockUser = {
   email: 'test@example.com',
   password: '123456',
 };
-
-const registerAndLogin = async (userProps = {}) => {
-  const password = userProps.password ?? mockUser.password;
-
-  // Create an "agent" that gives us the ability
-  // to store cookies between requests in a test
-  const agent = request.agent(app);
-
-  // Create a user to sign in with
-  const user = await UserService.create({ ...mockUser, ...userProps });
-
-  // ...then sign in
-  const { email } = user;
-  await agent.post('/api/v1/users/sessions').send({ email, password });
-  return [agent, user];
-};
+const agent = request.agent(app);
 
 describe('backend-express-template routes', () => {
   beforeEach(() => {
@@ -49,11 +33,10 @@ describe('backend-express-template routes', () => {
   });
 
   it('#POST /api/v1/users/sessions should log in an existing user', async () => {
-    const agent = request.agent(app);
     await agent.post('/api/v1/users').send(mockUser);
     const res = await agent.post('/api/v1/users/sessions').send(mockUser);
 
-    console.log('res.body', res.body);
+    // console.log('res.body', res.body);
     expect(res.status).toBe(200);
     expect(res.body).toEqual({
       message: 'You have successfully signed in!'
@@ -61,11 +44,18 @@ describe('backend-express-template routes', () => {
   });
 
   it('#GET /me route returns the current user', async () => {
-    const [agent, user] = await registerAndLogin();
+    const failRes = await request(app).get('/api/v1/users/me');
+    expect(failRes.status).toBe(401);
+
+    await agent.post('/api/v1/users').send(mockUser);
     const res = await agent.get('/api/v1/users/me');
 
+    // console.log('res.body', res.body);
     expect(res.body).toEqual({
-      ...user,
+      id: expect.any(String),
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
       exp: expect.any(Number),
       iat: expect.any(Number)
     });
