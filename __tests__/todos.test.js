@@ -19,6 +19,19 @@ describe('backend-express-template routes', () => {
     pool.end();
   });
 
+  it('#POST /api/v1/todos adds a new task for the user', async () => {
+    const newTask = {
+      detail: 'Need to add this task'
+    };
+    await agent.post('/api/v1/users').send(mockUser);
+    const res = await agent.post('/api/v1/todos').send(newTask);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      ...newTask
+    });
+  });
+
   it('#GET /todos lists all tasks for the user', async () => {
     await agent.post('/api/v1/users').send(mockUser);
     const res = await request(app).get('/api/v1/todos');
@@ -32,4 +45,6 @@ describe('backend-express-template routes', () => {
       status: false
     });
   });
+
+  
 });
