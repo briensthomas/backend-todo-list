@@ -9,6 +9,11 @@ const mockUser = {
   email: 'test@example.com',
   password: '123456',
 };
+
+const newTask = {
+  detail: 'Need to add this task'
+};
+
 const agent = request.agent(app);
 
 describe('backend-express-template routes', () => {
@@ -20,31 +25,37 @@ describe('backend-express-template routes', () => {
   });
 
   it('#POST /api/v1/todos adds a new task for the user', async () => {
-    const newTask = {
-      detail: 'Need to add this task'
-    };
+    
     await agent.post('/api/v1/users').send(mockUser);
+
     const res = await agent.post('/api/v1/todos').send(newTask);
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({
-      ...newTask
+      id: expect.any(String),
+      created_at: expect.any(String),
+      detail: 'Need to add this task',
+      user_id: expect.any(String),
+      status: false
     });
   });
 
   it('#GET /todos lists all tasks for the user', async () => {
     await agent.post('/api/v1/users').send(mockUser);
-    const res = await request(app).get('/api/v1/todos');
+    await agent.post('/api/v1/todos').send(newTask);
+
+    const res = await agent.get('/api/v1/todos');
+    console.log('res.body', res.body);
 
     expect(res.status).toBe(200);
     expect(res.body[0]).toEqual({
       id: expect.any(String),
       created_at: expect.any(String),
       detail: expect.any(String),
-      user_id: expect.any(Number),
+      user_id: expect.any(String),
       status: false
     });
   });
 
-  
+
 });
