@@ -80,7 +80,7 @@ describe('backend-express-template routes', () => {
     await agent.post('/api/v1/todos').send(newTask);
     const res = await agent.delete('/api/v1/todos/1');
 
-    expect(res.status).toBe(204);
+    expect(res.status).toBe(200);
     
   });
 
