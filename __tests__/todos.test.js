@@ -45,7 +45,7 @@ describe('backend-express-template routes', () => {
     await agent.post('/api/v1/todos').send(newTask);
 
     const res = await agent.get('/api/v1/todos');
-    console.log('res.body', res.body);
+    // console.log('res.body', res.body);
 
     expect(res.status).toBe(200);
     expect(res.body[0]).toEqual({
@@ -58,12 +58,21 @@ describe('backend-express-template routes', () => {
   });
 
   it('#PUT /todos/:id updates a task for the user', async () => {
+    const newNewTask = {
+      detail: 'Need to add this task'
+    };
+    await agent.post('/api/v1/users').send(mockUser);
+
     const updatedTask = {
       status: true
     };
-    await agent.post('/api/v1/users').send(mockUser);
-    const res = await agent.put('/api/v1/todos').send(updatedTask);
 
+    const postRes = await agent.post('/api/v1/todos').send(newNewTask);
+    console.log('postRes.id', postRes.body.id);
+    expect(postRes.status).toBe(200);
+    const res = await agent.put(`/api/v1/todos/${postRes.body.id}`).send(updatedTask);
+
+    console.log('res.body', res.body);
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(true);
   });
