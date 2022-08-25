@@ -58,23 +58,30 @@ describe('backend-express-template routes', () => {
   });
 
   it('#PUT /todos/:id updates a task for the user', async () => {
-    const newNewTask = {
-      detail: 'Need to add this task'
-    };
+
     await agent.post('/api/v1/users').send(mockUser);
 
     const updatedTask = {
       status: true
     };
 
-    const postRes = await agent.post('/api/v1/todos').send(newNewTask);
-    console.log('postRes.id', postRes.body.id);
+    const postRes = await agent.post('/api/v1/todos').send(newTask);
+    // console.log('postRes.id', postRes.body.id);
     expect(postRes.status).toBe(200);
     const res = await agent.put(`/api/v1/todos/${postRes.body.id}`).send(updatedTask);
 
-    console.log('res.body', res.body);
+    // console.log('res.body', res.body);
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(true);
+  });
+
+  it('#DELETE /todos/:id deletes a task for user', async () => {
+    await agent.post('/api/v1/users').send(mockUser);
+    await agent.post('/api/v1/todos').send(newTask);
+    const res = await agent.delete('/api/v1/todos/1');
+
+    expect(res.status).toBe(204);
+    
   });
 
 });
